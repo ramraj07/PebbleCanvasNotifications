@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Pebble Canvas Notifications</string>
+    <string name="action_settings">Settings</string>
+    <string name="hello_world">Hello world!</string>
+
+
+<string name="plugin_name_now_playing">Pebble Canvas Notification </string>
+<string name="plugin_name_notification_icon">Notification Icon</string>
+
+	<string name="settings_describe_app_list">Choose which apps you want to forward notifications from:</string>
+	<string name="enable_pebbleplusplus">Enable Pebble Canvas Notifications Plugin</string>
+	<string name="enable_vibrate">Vibrate Pebble for notifications</string>
+	<string name="settings_app_list_will_become_longer">This list will get populated slowly as more apps send notifications.</string>
+    <string-array name="format_mask_descs">
+        <item>Notification 1 Title</item>
+        <item>Notification 1 Subject</item>
+        <item>Notification 1 Package name</item>
+        <item>Notification 2 Title</item>
+        <item>Notification 2 Subject</item>
+        <item>Notification 2 Package name</item>
+                
+    </string-array>
+
+</resources>
