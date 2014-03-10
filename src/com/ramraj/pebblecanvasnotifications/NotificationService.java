@@ -141,11 +141,17 @@ public class NotificationService extends AccessibilityService {
 	    }
 	}
 	String truncateToWatchFaceWidth(String input,int widthToFit) {
-		final byte[] ASCIIwidths = new byte[]{-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
-				-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,3,2,-1,-1,8,14,11,-1,5,
-				5,-1,-1,2,4,2,2,8,6,8,8,9,8,8,8,9,9,7,2,8,8,8,2,7,10,9,8,8,7,7,8,8,2,4,8,7,
-				10,9,8,8,8,9,8,8,8,9,10,8,8,8,4,7,4,-1,10,-1,10,9,8,8,7,7,8,8,2,4,8,7,10,9,
-				8,8,8,9,8,8,8,9,10,8,8,8,-1,-1,-1,-1,-1};
+		final byte[] ASCIIwidths = new byte[]{-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
+				-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,3,2,-1,-1,8,14,11,
+				-1,5,5,-1,-1,2,4,2,2,8,6,8,8,9,8,8,8,9,9,7,2,8,8,8,2,7,10,9,8,8,7,7,8,8,
+				2,4,8,7,10,9,8,8,8,9,8,8,8,9,10,8,8,8,4,7,4,-1,10,-1,10,9,8,8,7,7,8,8,2,
+				4,8,7,10,9,8,8,8,9,8,8,8,9,10,8,8,8,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
+				-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
+				-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
+				-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
+				-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
+				-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1, 2,-1,-1,-1,-1,-1,-1,-1,
+				-1};
 		final int maxchars = (int) Math.floor((double)widthToFit/(2+1));// 2 is the width of a fullstop and 1 is the space padding after it
 		boolean previousWasSpace=false;
 		int counter=0,charInInt; 
@@ -156,7 +162,7 @@ public class NotificationService extends AccessibilityService {
 		for (int l=0;l<inputArray.length;l++) {
 			charInInt = (int)inputArray[l];
 			
-			if (charInInt<128 && ASCIIwidths[charInInt]!=-1) {
+			if (charInInt<256 && ASCIIwidths[charInInt]!=-1) {
 					if (charInInt==32) {
 						if (previousWasSpace) continue;	
 						previousWasSpace=true;
