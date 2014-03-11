@@ -15,10 +15,12 @@
 	<string name="settings_app_list_will_become_longer">This list will get populated slowly as more apps send notifications.</string>
     <string-array name="format_mask_descs">
         <item>Notification 1 Title</item>
-        <item>Notification 1 Subject</item>
+        <item>Notification 1 Subject Line 1</item>
+        <item>Notification 1 Subject Line 2</item>
         <item>Notification 1 Package name</item>
         <item>Notification 2 Title</item>
-        <item>Notification 2 Subject</item>
+        <item>Notification 2 Subject Line 1</item>
+        <item>Notification 2 Subject Line 2</item>
         <item>Notification 2 Package name</item>
                 
     </string-array>

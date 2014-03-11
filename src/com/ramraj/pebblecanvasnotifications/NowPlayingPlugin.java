@@ -1,5 +1,6 @@
 package com.ramraj.pebblecanvasnotifications;
 
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 
 import java.util.Arrays;
@@ -10,6 +11,7 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.preference.PreferenceManager;
+import android.util.Base64;
 import android.util.Log;
 
 import com.pennas.pebblecanvas.plugin.PebbleCanvasPlugin;
@@ -21,13 +23,15 @@ public class NowPlayingPlugin extends PebbleCanvasPlugin {
 	private static final int ID_NEW_EMAIL = 1;
 	private static final int ID_NOTIFICATION_ICON = 2;
 	
-	private static final String[] MASKS = { "%T", "%S","%F", "%Y","%D", "%G",};
+	private static final String[] MASKS = { "%T", "%S","%s","%F", "%Y","%D","%d", "%G",};
 	private static final int MASK_TITLE = 0;
 	private static final int MASK_SUBJECT = 1;
-	private static final int MASK_FROM = 2;
-	private static final int MASK_TITLE2= 3;
-	private static final int MASK_SUBJECT2 = 4;
-	private static final int MASK_FROM2 = 5;
+	private static final int MASK_SUBJECTB = 2;	
+	private static final int MASK_FROM = 3;
+	private static final int MASK_TITLE2= 4;
+	private static final int MASK_SUBJECT2 = 5;
+	private static final int MASK_SUBJECT2B = 6;
+	private static final int MASK_FROM2 = 7;
 	
 	
 
@@ -62,10 +66,10 @@ public class NowPlayingPlugin extends PebbleCanvasPlugin {
 		tplug.default_format_string = "%T - %S";
 		plugins.add(tplug);
 		
-		ImagePluginDefinition iplug = new ImagePluginDefinition();
+		/*ImagePluginDefinition iplug = new ImagePluginDefinition();
 		iplug.id = ID_NOTIFICATION_ICON;
 		iplug.name = context.getString(R.string.plugin_name_notification_icon);
-		plugins.add(iplug);
+		plugins.add(iplug);*/
 				
 		return plugins;
 	}
@@ -90,8 +94,10 @@ public class NowPlayingPlugin extends PebbleCanvasPlugin {
 		current_track.pkname2 = prefs.getString(MASKS[MASK_FROM2], null);
 		current_track.from = prefs.getString(MASKS[MASK_TITLE], null);
 		current_track.subject = prefs.getString(MASKS[MASK_SUBJECT], null);
+		current_track.subjectb = prefs.getString(MASKS[MASK_SUBJECTB], null);
 		current_track.from2 = prefs.getString(MASKS[MASK_TITLE2], null);
 		current_track.subject2 = prefs.getString(MASKS[MASK_SUBJECT2], null);
+		current_track.subject2b = prefs.getString(MASKS[MASK_SUBJECT2B], null);
 		
 	    
 	    //`Log.i(LOG_TAG, "loaded email from = " + current_track.from+ " subj = "				 + current_track.subject );
@@ -102,10 +108,27 @@ public class NowPlayingPlugin extends PebbleCanvasPlugin {
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
 		prefs.edit().putString(MASKS[MASK_FROM], current_track.pkname).commit();
 		prefs.edit().putString(MASKS[MASK_SUBJECT], current_track.subject).commit();
+		prefs.edit().putString(MASKS[MASK_SUBJECTB], current_track.subjectb).commit();
 		prefs.edit().putString(MASKS[MASK_FROM2], current_track.pkname2).commit();
 		prefs.edit().putString(MASKS[MASK_SUBJECT2], current_track.subject2).commit();
+		prefs.edit().putString(MASKS[MASK_SUBJECT2B], current_track.subject2b).commit();
 		prefs.edit().putString(MASKS[MASK_TITLE], current_track.from).commit();
 		prefs.edit().putString(MASKS[MASK_TITLE2], current_track.from2).commit();
+		
+		/*Bitmap realImage = current_track.icon;
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		realImage.compress(Bitmap.CompressFormat.JPEG, 100, baos);   
+		byte[] b = baos.toByteArray(); 
+
+		String encodedImage = Base64.encodeToString(b, Base64.DEFAULT);
+		//textEncode.setText(encodedImage);
+
+		
+		
+		prefs.edit().putString("image_data",encodedImage).commit();*/
+		
+
+		
 	}
 
 
@@ -113,7 +136,7 @@ public class NowPlayingPlugin extends PebbleCanvasPlugin {
 	
 	
 	public static class Track {
-		String from,subject,from2,subject2,from3,subject3,pkname,pkname2,pkname3;
+		String from,subject,subjectb,from2,subject2,subject2b,pkname,pkname2;
 		Bitmap icon;
 	}
 	 
@@ -130,8 +153,25 @@ public class NowPlayingPlugin extends PebbleCanvasPlugin {
 		current_track.from = track.from;
 		current_track.pkname = track.pkname;
 		current_track.icon = track.icon;
+		//Log.i("Canvas notifi", "request check for bitmap update");
+		String splits[] = current_track.subject.split("[\r\n]+");
+		if (splits.length>1){
+			current_track.subject = splits[0];
+			current_track.subjectb = splits[1];}
+			else 
+				current_track.subjectb=" ";
+		String splits2[] = current_track.subject2.split("[\r\n]+");
+		if (splits2.length>1){
+			current_track.subject2 = splits2[0];
+			current_track.subject2b = splits2[1];}
+			else 
+				current_track.subject2b=" ";
+		
+		
+				
 
 		notify_canvas_updates_available(ID_NEW_EMAIL, context);
+		//notify_canvas_updates_available(ID_NOTIFICATION_ICON, context);
 		save_to_prefs(context);
 	}
 	
@@ -149,19 +189,27 @@ public class NowPlayingPlugin extends PebbleCanvasPlugin {
 				if (def_id == ID_NEW_EMAIL) {
 					// which field to return current value for?
 					//`Log.i(LOG_TAG, "get_format_mask_value id new email" );
+					String returnString=null;
 					if (format_mask.equals(MASKS[MASK_FROM])) {
-						return current_track.pkname;
+						returnString = current_track.pkname;
 					} else if (format_mask.equals(MASKS[MASK_SUBJECT])) {
-						return current_track.subject;
+						returnString = current_track.subject;
+					} else if (format_mask.equals(MASKS[MASK_SUBJECTB])) {
+						returnString = current_track.subjectb;
 					} else if (format_mask.equals(MASKS[MASK_FROM2])) {
-						return current_track.pkname2;
+						returnString = current_track.pkname2;
 					} else if (format_mask.equals(MASKS[MASK_SUBJECT2])) {
-						return current_track.subject2;
+						returnString = current_track.subject2;
+					} else if (format_mask.equals(MASKS[MASK_SUBJECT2B])) {
+						returnString = current_track.subject2b;
 					} else if (format_mask.equals(MASKS[MASK_TITLE])) {
-						return current_track.from;
+						returnString = current_track.from;
 					} else if (format_mask.equals(MASKS[MASK_TITLE2])) {
-						return current_track.from2;
+						returnString = current_track.from2;
 					}
+					if (returnString.length()>41) return returnString.substring(0,39);
+					else 
+						return returnString;
 				}
 				//`Log.i(LOG_TAG, "no matching mask found");
 			
@@ -171,6 +219,8 @@ public class NowPlayingPlugin extends PebbleCanvasPlugin {
 	@Override
 	protected Bitmap get_bitmap_value(int def_id, Context context, String param) {
 		if (def_id== ID_NOTIFICATION_ICON) {
+			
+		//	Log.i("Canvas notifi", "bitmap requested");
 			return current_track.icon;
 		}
 		

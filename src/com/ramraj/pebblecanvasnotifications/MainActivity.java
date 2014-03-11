@@ -37,6 +37,7 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.Toast;
 
 public class MainActivity extends Activity {
 
@@ -98,6 +99,7 @@ public class MainActivity extends Activity {
 	        
 	        TextView tv=new TextView(getApplicationContext());
 	        tv.setText(R.string.settings_app_list_will_become_longer);
+	        
 	        lv.addFooterView(tv);
 	        
 	        lv.setAdapter(arrayAdapter);

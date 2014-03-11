@@ -84,16 +84,16 @@ public class NotificationService extends AccessibilityService {
 		    	ViewGroup localView = (ViewGroup) inflater.inflate(views.getLayoutId(), null);												    
 			    views.reapply(getApplicationContext(), localView);			    
 				//`Log.i("CANV_K9MAIL", toWrite);
-				notifTitle=getTextRecursively(localView,"title","",true);
+				notifTitle=getTextRecursively(localView,"title","",false);
 				if(notification.number>1 && 
 						notifTitle.toLowerCase().indexOf("new messages")!=-1) 
-					notifContents=getTextRecursively(localView,"text","\n",true);
+					notifContents=getTextRecursively(localView,"text","\n",false);
 				else notifContents=getTextRecursively(localView,"text","\n",false);
 				
 				toWrite = notifTitle+"\n"+notifContents;
 									
 				if (pkname.equals("com.google.android.googlequicksearchbox")) {
-					finalNotifSource="Now";					
+					finalNotifSource="Search";					
 				} else if (pkname.equals("com.google.android.apps.maps")) {
 					finalNotifSource="Maps";					
 				} else if (pkname.equals("com.android.email")) {
