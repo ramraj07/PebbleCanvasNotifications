@@ -59,7 +59,7 @@ public class NotificationService extends AccessibilityService {
 			
 			//Log.i("CANV_K9MAIL", "notification: " + event.getText());
 			String pkname = (String) event.getPackageName();
-			if (!notificationSourceList.checkIfProgramBlackListed(pkname)) {
+			if (notificationSourceList.checkIfProgramWhiteListed(pkname)) {
 								
 				toWrite="===============================\npackage: "+pkname +
 						"\n";

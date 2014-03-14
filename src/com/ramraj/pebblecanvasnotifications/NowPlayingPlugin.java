@@ -138,6 +138,17 @@ public class NowPlayingPlugin extends PebbleCanvasPlugin {
 	public static class Track {
 		String from,subject,subjectb,from2,subject2,subject2b,pkname,pkname2;
 		Bitmap icon;
+		/*public Track() {
+			from=" ";
+			subject = " ";
+			subjectb = " ";
+			from2 = " ";
+			subject2=" ";
+			subject2b=" ";
+			pkname = " ";
+			pkname2= " ";
+			
+		}*/
 	}
 	 
 	
@@ -153,20 +164,27 @@ public class NowPlayingPlugin extends PebbleCanvasPlugin {
 		current_track.from = track.from;
 		current_track.pkname = track.pkname;
 		current_track.icon = track.icon;
+        Log.i("HiHiHi",track.from);
+
 		//Log.i("Canvas notifi", "request check for bitmap update");
+        if(current_track.subject== null) current_track.subjectb = null;
+        else {
 		String splits[] = current_track.subject.split("[\r\n]+");
 		if (splits.length>1){
 			current_track.subject = splits[0];
 			current_track.subjectb = splits[1];}
 			else 
 				current_track.subjectb=" ";
+        }
+        if( current_track.subject2==null) current_track.subject2b = null;
+        else {
 		String splits2[] = current_track.subject2.split("[\r\n]+");
 		if (splits2.length>1){
 			current_track.subject2 = splits2[0];
 			current_track.subject2b = splits2[1];}
 			else 
 				current_track.subject2b=" ";
-		
+        }
 		
 				
 
@@ -207,8 +225,8 @@ public class NowPlayingPlugin extends PebbleCanvasPlugin {
 					} else if (format_mask.equals(MASKS[MASK_TITLE2])) {
 						returnString = current_track.from2;
 					}
-					if (returnString.length()>41) return returnString.substring(0,39);
-					else 
+  			///	if (!returnString.isEmpty() && returnString.length()>41 ) return returnString.substring(0,38);
+				//	else 
 						return returnString;
 				}
 				//`Log.i(LOG_TAG, "no matching mask found");

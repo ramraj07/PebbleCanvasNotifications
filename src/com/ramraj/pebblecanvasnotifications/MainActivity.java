@@ -60,7 +60,7 @@ public class MainActivity extends Activity {
 		super.onResume();
 		 final NotificationSourceList notificationSourceList = new NotificationSourceList(getApplicationContext());
 		    Set<String> fullList = notificationSourceList.getFullProgramList();
-		    Set<String> blackList = notificationSourceList.getBlackListedProgramList();
+		    Set<String> whiteList = notificationSourceList.getWhiteListedProgramList();
 		    setContentView(R.layout.activity_main);
 		    CheckBox enabled= (CheckBox)findViewById(R.id.checkBoxEnablePebblePlusPlus);
 			//if (enabled!=null)
@@ -84,7 +84,10 @@ public class MainActivity extends Activity {
 	        
 	        
 	        final List<String> list = new ArrayList<String>(listWithNames);
+			SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+
 	        
+	        Log.i("HiHiHi","abc"+prefs.getString("%T", null));
 	        
 	        for(int l=0;l<list.size();l++) {
 	        	try {
@@ -104,7 +107,7 @@ public class MainActivity extends Activity {
 	        
 	        lv.setAdapter(arrayAdapter);
 	        lv.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
-	        for (int l=0;l<list.size();l++) if(!blackList.contains(list.get(l))) lv.setItemChecked(l, true);
+	        for (int l=0;l<list.size();l++) if(whiteList.contains(list.get(l))) lv.setItemChecked(l, true);
 	     // listener for the first one 
 	        lv.setOnItemClickListener(new OnItemClickListener() {
 
@@ -114,14 +117,14 @@ public class MainActivity extends Activity {
 							// TODO Auto-generated method stub
 							//`Log.i("CANV_K9MAIL","user clicked"+arg2+" - "+arg3);
 							ListView vv = (ListView)arg0;
-							boolean itemSelectionStatus = !(vv.isItemChecked(arg2));
-							vv.setItemChecked(arg2,!itemSelectionStatus);
-							if (!itemSelectionStatus) {
+							boolean itemSelectionStatus = (vv.isItemChecked(arg2));
+							vv.setItemChecked(arg2,itemSelectionStatus);
+							if (itemSelectionStatus) {
 								// item has been checked as wanted
-								notificationSourceList.removeProgramFromBlackList(list.get(arg2));
+								notificationSourceList.addProgramToWhiteList(list.get(arg2));
 							} else {
 								// blacklist it
-								notificationSourceList.addProgramToBlackList(list.get(arg2));
+								notificationSourceList.removeProgramFromWhiteList(list.get(arg2));
 							}
 								
 						}

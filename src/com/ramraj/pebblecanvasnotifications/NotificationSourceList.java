@@ -10,13 +10,13 @@ import android.preference.PreferenceManager;
 
 public class NotificationSourceList {
 			
-	private Set<String> programBlackList;
+	private Set<String> programWhiteList;
 	private Set<String> programFullList;
 	
 	private SharedPreferences prefs;
 	private SharedPreferences.Editor prefEditor;
 	private final String FULL_LIST_PREF_NAME="programFullList";
-	private final String BLACK_LIST_PREF_NAME="programBlackList";
+	private final String WHITE_LIST_PREF_NAME="programWhiteList";
 	private boolean initialized=false;
 	public NotificationSourceList(Context context) {
 		// new instance is being requested. check first if sharedprefs has any list saved
@@ -24,17 +24,26 @@ public class NotificationSourceList {
 		prefEditor = prefs.edit();
 		if (!(prefs.contains("programListSaved") && 
 				prefs.contains(FULL_LIST_PREF_NAME) &&
-				prefs.contains(BLACK_LIST_PREF_NAME) )) {
-			// first time. add a bunch of programs blacklisted by default to the prefs.
-			programBlackList = new HashSet<String>(Arrays.asList(new String[] { 
-					"net.dinglisch.android.taskerm",
-					"com.gvoip",
-					"com.android.vending",					
-					"ch.bitspin.timely",
-					"com.getpebble.android",
-					"com.ttxapps.dropsync",
-					"com.android.providers.downloads"}));  
-			prefEditor.putStringSet(BLACK_LIST_PREF_NAME, programBlackList);
+				prefs.contains(WHITE_LIST_PREF_NAME) )) {
+			// first time. add a bunch of programs whitelisted by default to the prefs.
+			programWhiteList = new HashSet<String>(Arrays.asList(new String[] { 
+					"com.google.android.gm",
+					"com.android.phone",
+					"com.google.android.talk",
+					"com.google.android.apps.maps",
+					"com.liamlang.renotify",
+					"com.google.android.calendar",
+					"com.whatsapp",
+					"com.viber.voip",
+					"com.skype.raider",
+					"com.fsck.k9",
+					"com.facebook.katana",
+					"com.facebook.orca",
+					"com.google.android.googlequicksearchbox",
+					"com.google.android.apps.plus",
+					"com.google.android.apps.googlevoice"
+					}));  
+			prefEditor.putStringSet(WHITE_LIST_PREF_NAME, programWhiteList);
 			programFullList = new HashSet<String>(Arrays.asList(new String[] { 
 					"com.google.android.gm",
 					"com.android.phone",
@@ -44,16 +53,16 @@ public class NotificationSourceList {
 			prefEditor.commit();
 		} else {
 			programFullList = prefs.getStringSet(FULL_LIST_PREF_NAME,new HashSet<String>());
-			programBlackList = prefs.getStringSet(BLACK_LIST_PREF_NAME, new HashSet<String>());
+			programWhiteList = prefs.getStringSet(WHITE_LIST_PREF_NAME, new HashSet<String>());
 			
 		}
 		initialized=true;
 	}
 	
-	public boolean checkIfProgramBlackListed(String programName) {
-		if (programBlackList.contains(programName))	{
+	public boolean checkIfProgramWhiteListed(String programName) {
+		if (programWhiteList.contains(programName))	{
 			if (!programFullList.contains(programName)) {
-				// app is on the default black list but now needs
+				// app is on the default white list but now needs
 				// to be explicitly added to the full list
 				programFullList.add(programName);
 				prefEditor.putStringSet(FULL_LIST_PREF_NAME, programFullList).commit();				
@@ -71,35 +80,35 @@ public class NotificationSourceList {
 		Set<String> programListCopy = new HashSet<String>(programFullList);
 		return(programListCopy);
 	}
-	public Set<String> getBlackListedProgramList() {
-		Set<String> programBlackListCopy = new HashSet<String>(programBlackList);
-		programBlackListCopy.retainAll(programFullList);
-		return(programBlackListCopy);
-	}
+	/*public Set<String> getBlackListedProgramList() {
+		dSet<String> programWhiteListCopy = new HashSet<String>(programWhiteList);
+		programWhiteListCopy.retainAll(programFullList);
+		return(programWhiteListCopy);
+	}*/
 	public Set<String> getWhiteListedProgramList() {
 		Set<String> programWhiteList = new HashSet<String>(programFullList);
-		programWhiteList.removeAll(programBlackList);
+		//programWhiteList.removeAll(programWhiteList);
 		return(programWhiteList);
 	}
-	public void addProgramToBlackList(String programName) {
+	public void addProgramToWhiteList(String programName) {
 		if (!programFullList.contains(programName)) {
 			programFullList.add(programName);
 			prefEditor.putStringSet(FULL_LIST_PREF_NAME, programFullList).commit();
 		}
-		if (!programBlackList.contains(programName)) {
-			programBlackList.add(programName);
-			prefEditor.putStringSet(BLACK_LIST_PREF_NAME, programBlackList).commit();
+		if (!programWhiteList.contains(programName)) {
+			programWhiteList.add(programName);
+			prefEditor.putStringSet(WHITE_LIST_PREF_NAME, programWhiteList).commit();
 		}
 	}
-	public void removeProgramFromBlackList(String programName) {
+	public void removeProgramFromWhiteList(String programName) {
 		if (!programFullList.contains(programName)) {
 			programFullList.add(programName);
 			prefEditor.putStringSet(FULL_LIST_PREF_NAME, programFullList).commit();
 			return;
 		}
-		if (programBlackList.contains(programName)) {
-			programBlackList.remove(programName);
-			prefEditor.putStringSet(BLACK_LIST_PREF_NAME, programBlackList).commit();
+		if (programWhiteList.contains(programName)) {
+			programWhiteList.remove(programName);
+			prefEditor.putStringSet(WHITE_LIST_PREF_NAME, programWhiteList).commit();
 		}
 	}
 }
