@@ -7,7 +7,8 @@
 
 
 <string name="plugin_name_now_playing">Pebble Canvas Notification </string>
-<string name="plugin_name_notification_icon">Notification Icon</string>
+<string name="plugin_name_notification_icon">Notification 1 Icon</string>
+<string name="plugin_name_notification_icon2">Notification 2 Icon</string>
 
 	<string name="settings_describe_app_list">Choose which apps you want to forward notifications from:</string>
 	<string name="enable_pebbleplusplus">Enable Pebble Canvas Notifications Plugin</string>

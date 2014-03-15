@@ -31,7 +31,7 @@ public class NotificationSourceList {
 					"com.android.phone",
 					"com.google.android.talk",
 					"com.google.android.apps.maps",
-					"com.liamlang.renotify",
+					"com.nitrodesk.droid20.nitroid",
 					"com.google.android.calendar",
 					"com.whatsapp",
 					"com.viber.voip",
@@ -86,7 +86,7 @@ public class NotificationSourceList {
 		return(programWhiteListCopy);
 	}*/
 	public Set<String> getWhiteListedProgramList() {
-		Set<String> programWhiteList = new HashSet<String>(programFullList);
+		//Set<String> programWhiteList = new HashSet<String>(programFullList);
 		//programWhiteList.removeAll(programWhiteList);
 		return(programWhiteList);
 	}
@@ -103,6 +103,8 @@ public class NotificationSourceList {
 	public void removeProgramFromWhiteList(String programName) {
 		if (!programFullList.contains(programName)) {
 			programFullList.add(programName);
+			programWhiteList.remove(programName);
+			prefEditor.putStringSet(WHITE_LIST_PREF_NAME, programWhiteList).commit();
 			prefEditor.putStringSet(FULL_LIST_PREF_NAME, programFullList).commit();
 			return;
 		}

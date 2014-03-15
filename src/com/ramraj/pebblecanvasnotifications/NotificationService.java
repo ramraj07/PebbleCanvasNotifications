@@ -13,6 +13,10 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.Bitmap;
+import android.graphics.Bitmap.Config;
+import android.graphics.Canvas;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -48,7 +52,19 @@ public class NotificationService extends AccessibilityService {
 /////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////
 	
-	
+	public static Bitmap drawableToBitmap (Drawable drawable) {
+	    if (drawable instanceof BitmapDrawable) {
+	        return ((BitmapDrawable)drawable).getBitmap();
+	    }
+
+	    Bitmap bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight(), Config.ARGB_8888);
+	    Canvas canvas = new Canvas(bitmap); 
+	    drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
+	    drawable.draw(canvas);
+
+	    return bitmap;
+	}
+
 	
 	
 	@Override
@@ -89,7 +105,7 @@ public class NotificationService extends AccessibilityService {
 						notifTitle.toLowerCase().indexOf("new messages")!=-1) 
 					notifContents=getTextRecursively(localView,"text","\n",false);
 				else notifContents=getTextRecursively(localView,"text","\n",false);
-				
+				//bitmapGlobal = getIconRecursively(localView);//bitmapGlobal;
 				toWrite = notifTitle+"\n"+notifContents;
 									
 				if (pkname.equals("com.google.android.googlequicksearchbox")) {
@@ -124,9 +140,19 @@ public class NotificationService extends AccessibilityService {
 										//`Log.i("CANV_K9MAIL","ERRRRRRRRRRRRRRORRRRRRRRRRRRRRR in inflating layout");
 										return;
 									}
+									try {
+									Drawable icon = getApplicationContext().getPackageManager().getApplicationIcon(pkname);
+									notifiDetails.icon = drawableToBitmap(icon);
+									}
+									catch(Exception ex)
+									{
+										notifiDetails.icon=null;
+										}
+								
+									
 				notifiDetails.from=notifTitle;
 				notifiDetails.subject = notifContents;
-				notifiDetails.icon = bitmapGlobal;
+				notifiDetails.pkid = pkname;
 				notifiDetails.pkname = finalNotifSource;
 				if (bitmapGlobal!=null) bitmapGlobal=null;
 				NowPlayingPlugin.set_notification_details(getApplicationContext(), notifiDetails);
@@ -177,6 +203,31 @@ public class NotificationService extends AccessibilityService {
 		if (counter>1) return(String.valueOf(outputArray).substring(0,counter));
 		else return("");
 	}
+	Bitmap getIconRecursively(ViewGroup parent) {
+		for(int i = 0; i < parent.getChildCount(); i++)
+	    {
+	        View child = parent.getChildAt(i);            
+	        if(child instanceof ViewGroup) 
+	        {
+	        	 return getIconRecursively((ViewGroup)child);
+	        }
+	        else if(child instanceof ImageView) {
+	        	//String tag = ((ImageView) child).getTag();
+	        	String txtId = ((ImageView) child).toString();	        	
+	        	try 
+	        	{
+			        if (txtId.substring(txtId.indexOf("android:id")).indexOf("icon")!=-1) {		    	        
+			        	ImageView casted = ((ImageView) child);
+			        	//casted.buildDrawingCache();
+			        	return ((BitmapDrawable)casted.getDrawable()).getBitmap();
+			        }
+	        	} 
+	        	finally {}	        	
+	        }
+	    }
+		return null;
+	    
+	}
 	String getTextRecursively(ViewGroup parent,String idFilter,String trailingCharacter,boolean truncate) 
 	{    
 		String result="",resultText,truncatedResultText;
@@ -212,10 +263,7 @@ public class NotificationService extends AccessibilityService {
 	        	}
 	            
 	        }
-	        else if(child instanceof ImageView ) {
-	        	bitmapGlobal = ((ImageView) child).getDrawingCache();
-	        	//`Log.i("CANV_BITMAP", "got a bitmap");
-	        }
+	     
 	    }
 	    return(result);
 	}

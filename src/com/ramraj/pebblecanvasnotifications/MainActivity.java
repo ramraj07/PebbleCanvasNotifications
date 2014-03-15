@@ -86,7 +86,13 @@ public class MainActivity extends Activity {
 	        final List<String> list = new ArrayList<String>(listWithNames);
 			SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 
-	        
+			for (String s : fullList) {
+			    Log.i("HiHiHi","full-"+s);
+			}
+			for (String s : fullList) {
+			    Log.i("HiHiHi","white-"+s);
+			}
+
 	        Log.i("HiHiHi","abc"+prefs.getString("%T", null));
 	        
 	        for(int l=0;l<list.size();l++) {
@@ -107,7 +113,14 @@ public class MainActivity extends Activity {
 	        
 	        lv.setAdapter(arrayAdapter);
 	        lv.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
-	        for (int l=0;l<list.size();l++) if(whiteList.contains(list.get(l))) lv.setItemChecked(l, true);
+	        for (int l=0;l<list.size();l++) {
+	        	if(whiteList.contains(list.get(l))) {
+	        		lv.setItemChecked(l, true);
+		        	Log.i("HiHiHi","prog-yes-"+list.get(l));
+
+	        	} else 
+	        	Log.i("HiHiHi","prog-no--"+list.get(l));
+	        }
 	     // listener for the first one 
 	        lv.setOnItemClickListener(new OnItemClickListener() {
 
