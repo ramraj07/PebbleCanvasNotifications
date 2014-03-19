@@ -148,12 +148,12 @@ public void onResume() {
         }
         ArrayAdapter<String> arrayAdapter =      
         new ArrayAdapter<String>(context,android.R.layout.simple_list_item_multiple_choice,(String[]) listWithNames.toArray());
-        
+        if(lv.getFooterViewsCount()==0) {
         TextView tv=new TextView(context);
         tv.setText(R.string.settings_app_list_will_become_longer);
         
         lv.addFooterView(tv);
-        
+        }
         lv.setAdapter(arrayAdapter);
         lv.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
         for (int l=0;l<list.size();l++) {
