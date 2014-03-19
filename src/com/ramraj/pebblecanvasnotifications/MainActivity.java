@@ -15,7 +15,9 @@ import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.accessibilityservice.AccessibilityServiceInfo;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
@@ -39,8 +41,8 @@ import android.widget.TextView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Toast;
 
-public class MainActivity extends Activity {
-
+public class MainActivity extends Activity implements DialogInterface.OnClickListener {
+private Context context;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -58,10 +60,28 @@ public class MainActivity extends Activity {
 	public void onResume() {
 		
 		super.onResume();
-		 final NotificationSourceList notificationSourceList = new NotificationSourceList(getApplicationContext());
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+		context = getApplicationContext();
+		if (prefs.contains(NotificationSourceList.BLACK_LIST_PREF_NAME)) {
+			//class initialized from an activity, show dialog.
+			new AlertDialog.Builder(this)
+		    .setTitle(context.getString(R.string.alert_applist_policy_migrate_title))
+		    .setMessage(context.getString(R.string.alert_applist_policy_migrate_subject))
+		    .setNegativeButton(context.getString(R.string.alert_applist_policy_migrate_option_keep),this)
+		    .setPositiveButton(context.getString(R.string.alert_applist_policy_migrate_option_discard),this) 
+		    .setCancelable(true).show();
+
+		}
+		 final NotificationSourceList notificationSourceList = new NotificationSourceList(getApplicationContext(),this);
 		    Set<String> fullList = notificationSourceList.getFullProgramList();
 		    Set<String> whiteList = notificationSourceList.getWhiteListedProgramList();
 		    setContentView(R.layout.activity_main);
+		    
+		    
+			
+
+		    
+		    
 		    CheckBox enabled= (CheckBox)findViewById(R.id.checkBoxEnablePebblePlusPlus);
 			//if (enabled!=null)
 			    enabled.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener(){
@@ -71,6 +91,7 @@ public class MainActivity extends Activity {
 						prefs.edit().putBoolean("serviceWanted", arg1).commit();
 					}});
 			
+			    
 
 	        lv = (ListView) findViewById(R.id.listView1);
 	        // Instanciating an array list (you don't need to do this, you already have yours)
@@ -78,13 +99,13 @@ public class MainActivity extends Activity {
 	        String[] temparr1=fullList.toArray(new String[fullList.size()]);        
 	        
 	        
-	        final PackageManager pm = getApplicationContext().getPackageManager();
+	        final PackageManager pm = context.getPackageManager();
 	        ApplicationInfo ai;
 	        List<String> listWithNames = Arrays.asList(temparr1);
 	        
 	        
 	        final List<String> list = new ArrayList<String>(listWithNames);
-			SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+			
 
 			for (String s : fullList) {
 			    Log.i("HiHiHi","full-"+s);
@@ -106,7 +127,7 @@ public class MainActivity extends Activity {
 	        ArrayAdapter<String> arrayAdapter =      
 	        new ArrayAdapter<String>(this,android.R.layout.simple_list_item_multiple_choice,(String[]) listWithNames.toArray());
 	        
-	        TextView tv=new TextView(getApplicationContext());
+	        TextView tv=new TextView(context);
 	        tv.setText(R.string.settings_app_list_will_become_longer);
 	        
 	        lv.addFooterView(tv);
@@ -143,8 +164,24 @@ public class MainActivity extends Activity {
 						}
 
 	            });
-           new CheckAccessibilityInBG(getApplicationContext()).execute("");
-   		
+	       
+        new CheckAccessibilityInBG(getApplicationContext()).execute("");
+        if (!prefs.contains("firstNTimes"))  prefs.edit().putInt("firstNTimes", 1).commit();
+        int firstNTimes =prefs.getInt("firstNTimes", 4); 
+        if (firstNTimes<4) {
+        	
+        	
+   		View linearLayout =  findViewById(R.id.errorContainers);
+        //LinearLayout layout = (LinearLayout) findViewById(R.id.info);
+		linearLayout.setBackgroundColor(Color.YELLOW);
+        TextView valueTV = new TextView(context);
+        valueTV.setText(R.string.new_add_icons);
+        valueTV.setTextColor(Color.BLACK);
+        valueTV.setId(5);
+        valueTV.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT,LayoutParams.WRAP_CONTENT));
+        ((LinearLayout) linearLayout).addView(valueTV);
+        prefs.edit().putInt("firstNTimes", firstNTimes+1).apply();
+        }
 	        
 	}
 	
@@ -193,11 +230,10 @@ public class MainActivity extends Activity {
                 //LinearLayout layout = (LinearLayout) findViewById(R.id.info);
         		linearLayout.setBackgroundColor(Color.RED);
                 TextView valueTV = new TextView(myCtx);
-                valueTV.setText("In order for the plugin to work, it needs access to the phone's notification system. Please \"check\" the box next to \"Pebble++\" in the Accessibility Settings window to enable this.");
+                valueTV.setText(R.string.switch_on_accessibility_message);
                 valueTV.setId(5);
-                
                 valueTV.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT,LayoutParams.WRAP_CONTENT));
-
+                ((LinearLayout) linearLayout).removeAllViews();
                 ((LinearLayout) linearLayout).addView(valueTV);
                 
                 Button btn1 = new Button(myCtx);
@@ -232,6 +268,27 @@ public class MainActivity extends Activity {
 	        }
 	    }
 	    return false;
+	}
+
+	@Override
+	public void onClick(DialogInterface dialog, int which) {
+		// TODO Auto-generated method stub
+		  switch(which) {
+          case DialogInterface.BUTTON_POSITIVE:
+        	  (new NotificationSourceList(context,null)).discardOldBlackList();
+              
+              Toast.makeText(getApplicationContext(), "Old app-list discarded",Toast.LENGTH_LONG).show();
+              onResume();
+              break;
+          case DialogInterface.BUTTON_NEGATIVE:
+        	  (new NotificationSourceList(context,null)).keepOldBlackList();
+              Toast.makeText(getApplicationContext(), "Old app-list carried-forward",Toast.LENGTH_LONG).show();
+              onResume();
+              break;
+          case DialogInterface.BUTTON_NEUTRAL:
+              Toast.makeText(getApplicationContext(), "CANCEL",Toast.LENGTH_LONG).show();
+              break;
+  }
 	}
 	
 }

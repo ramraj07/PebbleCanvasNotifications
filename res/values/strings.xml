@@ -4,12 +4,23 @@
     <string name="app_name">Pebble Canvas Notifications</string>
     <string name="action_settings">Settings</string>
     <string name="hello_world">Hello world!</string>
-
-
+<string name="switch_on_accessibility_message">In order for the plugin to work, 
+    it needs access to the phone\'s notification system. Please "check" the 
+    box next to "Pebble++" in the Accessibility Settings window to enable this.</string>
+<string name="new_add_icons">Newest feature! Show notification ions on your Canvas watchface!</string>
 <string name="plugin_name_now_playing">Pebble Canvas Notification </string>
 <string name="plugin_name_notification_icon">Notification 1 Icon</string>
 <string name="plugin_name_notification_icon2">Notification 2 Icon</string>
-
+<string name="notification_applist_policy_migrate_title">Pebble Canvas Notifications</string>
+<string name="notification_applist_policy_migrate_subject">Your preference on an important setting-change is needed.</string>
+<string name="alert_applist_policy_migrate_title">Discard old app-list</string>
+<string name="alert_applist_policy_migrate_option_discard">Discard (recommended)</string>
+<string name="alert_applist_policy_migrate_option_keep">Keep old app-list</string>
+<string name="alert_applist_policy_migrate_subject">The new version of the app has shifted to allow  
+			        only notifications from explicitly selected applications to be 
+			        		forwarded to Canvas for Pebble. Unfortunately this will reset the 
+			        		application selections made previously. But if you want, the approved
+			        		app list can be migrated (not recommended if you never customized that list yourself).</string>
 	<string name="settings_describe_app_list">Choose which apps you want to forward notifications from:</string>
 	<string name="enable_pebbleplusplus">Enable Pebble Canvas Notifications Plugin</string>
 	<string name="enable_vibrate">Vibrate Pebble for notifications</string>

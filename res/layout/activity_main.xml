@@ -20,7 +20,8 @@
       android:id="@+id/errorContainers"
       android:padding="10dp"
       android:showDividers="middle" />
-      
+
+    
        <CheckBox
            android:id="@+id/checkBoxEnablePebblePlusPlus"
            android:layout_width="wrap_content"

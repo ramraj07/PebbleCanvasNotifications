@@ -4,7 +4,14 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
@@ -15,16 +22,38 @@ public class NotificationSourceList {
 	
 	private SharedPreferences prefs;
 	private SharedPreferences.Editor prefEditor;
-	private final String FULL_LIST_PREF_NAME="programFullList";
-	private final String WHITE_LIST_PREF_NAME="programWhiteList";
+	public static final String FULL_LIST_PREF_NAME="programFullList";
+	public static final String WHITE_LIST_PREF_NAME="programWhiteList";
+	public static final String BLACK_LIST_PREF_NAME="programBlackList";
+	
+
 	private boolean initialized=false;
-	public NotificationSourceList(Context context) {
+	public NotificationSourceList(Context context,Activity callingActivity) {
 		// new instance is being requested. check first if sharedprefs has any list saved
 		prefs = PreferenceManager.getDefaultSharedPreferences(context);
 		prefEditor = prefs.edit();
+		if (prefs.contains(BLACK_LIST_PREF_NAME)) {
+			if (callingActivity ==null) {
+				// means the class was initialized from a service				
+				Intent intent = new Intent(context, MainActivity.class);
+				PendingIntent pIntent = PendingIntent.getActivity(context, 0, intent, 0);									
+				// build notification
+				// the addAction re-use the same intent to keep the example short
+				Notification n  = new Notification.Builder(context)
+				        .setContentTitle(context.getString(R.string.notification_applist_policy_migrate_title))
+				        .setContentText(context.getString(R.string.notification_applist_policy_migrate_subject))
+				        .setTicker(context.getString(R.string.notification_applist_policy_migrate_subject))
+				        .setSmallIcon(R.drawable.ic_pebblecanvasnotifications)
+				        .setContentIntent(pIntent)
+				        .setAutoCancel(false).build();		        			  
+				NotificationManager notificationManager = 
+				  (NotificationManager) context.getSystemService(android.content.Context.NOTIFICATION_SERVICE);			
+				notificationManager.notify(0, n); 
+			}
+		}
 		if (!(prefs.contains("programListSaved") && 
 				prefs.contains(FULL_LIST_PREF_NAME) &&
-				prefs.contains(WHITE_LIST_PREF_NAME) )) {
+				(prefs.contains(WHITE_LIST_PREF_NAME) ||prefs.contains(BLACK_LIST_PREF_NAME))  )) {
 			// first time. add a bunch of programs whitelisted by default to the prefs.
 			programWhiteList = new HashSet<String>(Arrays.asList(new String[] { 
 					"com.google.android.gm",
@@ -49,8 +78,8 @@ public class NotificationSourceList {
 					"com.android.phone",
 					"com.google.android.talk"}));
 			prefEditor.putStringSet(FULL_LIST_PREF_NAME,programFullList);
-			prefEditor.putString("programListSaved","oh yes").commit();
-			prefEditor.commit();
+			prefEditor.putString("programListSaved","oh yes");
+			prefEditor.apply();
 		} else {
 			programFullList = prefs.getStringSet(FULL_LIST_PREF_NAME,new HashSet<String>());
 			programWhiteList = prefs.getStringSet(WHITE_LIST_PREF_NAME, new HashSet<String>());
@@ -65,14 +94,14 @@ public class NotificationSourceList {
 				// app is on the default white list but now needs
 				// to be explicitly added to the full list
 				programFullList.add(programName);
-				prefEditor.putStringSet(FULL_LIST_PREF_NAME, programFullList).commit();				
+				prefEditor.putStringSet(FULL_LIST_PREF_NAME, programFullList).apply();				
 			}				
 			return(true);
 		} else if (programFullList.contains(programName)) 	return(false);
 		else {
 			//first time!
 			programFullList.add(programName);
-			prefEditor.putStringSet(FULL_LIST_PREF_NAME, programFullList).commit();
+			prefEditor.putStringSet(FULL_LIST_PREF_NAME, programFullList).apply();
 			return(false);		
 		}		
 	}
@@ -93,24 +122,41 @@ public class NotificationSourceList {
 	public void addProgramToWhiteList(String programName) {
 		if (!programFullList.contains(programName)) {
 			programFullList.add(programName);
-			prefEditor.putStringSet(FULL_LIST_PREF_NAME, programFullList).commit();
+			prefEditor.putStringSet(FULL_LIST_PREF_NAME, programFullList).apply();
 		}
 		if (!programWhiteList.contains(programName)) {
 			programWhiteList.add(programName);
-			prefEditor.putStringSet(WHITE_LIST_PREF_NAME, programWhiteList).commit();
+			prefEditor.putStringSet(WHITE_LIST_PREF_NAME, programWhiteList).apply();
 		}
 	}
 	public void removeProgramFromWhiteList(String programName) {
 		if (!programFullList.contains(programName)) {
 			programFullList.add(programName);
 			programWhiteList.remove(programName);
-			prefEditor.putStringSet(WHITE_LIST_PREF_NAME, programWhiteList).commit();
-			prefEditor.putStringSet(FULL_LIST_PREF_NAME, programFullList).commit();
+			prefEditor.putStringSet(WHITE_LIST_PREF_NAME, programWhiteList);
+			prefEditor.putStringSet(FULL_LIST_PREF_NAME, programFullList).apply();
 			return;
 		}
 		if (programWhiteList.contains(programName)) {
 			programWhiteList.remove(programName);
-			prefEditor.putStringSet(WHITE_LIST_PREF_NAME, programWhiteList).commit();
+			prefEditor.putStringSet(WHITE_LIST_PREF_NAME, programWhiteList).apply();
 		}
 	}
+	public void keepOldBlackList() {
+		if ((prefs.contains("programListSaved") && 
+				prefs.contains(FULL_LIST_PREF_NAME) &&
+				prefs.contains(BLACK_LIST_PREF_NAME) )) {
+				Set<String> programBlackList = prefs.getStringSet(BLACK_LIST_PREF_NAME,new HashSet<String>());
+				programWhiteList = programFullList;
+				programWhiteList.removeAll(programBlackList);
+				prefEditor.putStringSet(WHITE_LIST_PREF_NAME, programWhiteList);
+				prefEditor.remove(BLACK_LIST_PREF_NAME).commit();
+				
+			}
+		
+	}
+	public void discardOldBlackList() {
+		prefEditor.remove(BLACK_LIST_PREF_NAME).commit();
+	}
+	
 }

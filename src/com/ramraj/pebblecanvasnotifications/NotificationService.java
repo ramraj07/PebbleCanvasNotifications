@@ -281,7 +281,7 @@ public class NotificationService extends AccessibilityService {
 	    info.feedbackType = AccessibilityServiceInfo.FEEDBACK_HAPTIC;
 	    info.notificationTimeout = 100;
 	    setServiceInfo(info);
-	    notificationSourceList = new NotificationSourceList(getApplicationContext());
+	    notificationSourceList = new NotificationSourceList(getApplicationContext(),null);
 	    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 	    serviceWanted = prefs.getBoolean("serviceWanted", true);
 	    
