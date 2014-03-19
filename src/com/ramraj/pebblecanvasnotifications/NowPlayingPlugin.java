@@ -37,7 +37,7 @@ public class NowPlayingPlugin extends PebbleCanvasPlugin {
 	private static final String MASK_PKID1 = "pkid1";
 	private static final String MASK_PKID2 = "pkid2";
 	
-	
+	public static final String SERVICE_WANTED = "serviceWanted";
 	
 
 
@@ -125,17 +125,17 @@ public class NowPlayingPlugin extends PebbleCanvasPlugin {
 	    
 	}
 	
-	private static void save_to_prefs(Context context) {
+	private static boolean save_to_prefs(Context context) {
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-		prefs.edit().putString(MASKS[MASK_FROM], current_track.pkname).commit();
-		prefs.edit().putString(MASKS[MASK_SUBJECT], current_track.subject).commit();
-		prefs.edit().putString(MASKS[MASK_SUBJECTB], current_track.subjectb).commit();
-		prefs.edit().putString(MASKS[MASK_FROM2], current_track.pkname2).commit();
-		prefs.edit().putString(MASKS[MASK_SUBJECT2], current_track.subject2).commit();
-		prefs.edit().putString(MASKS[MASK_SUBJECT2B], current_track.subject2b).commit();
-		prefs.edit().putString(MASKS[MASK_TITLE], current_track.from).commit();
-		prefs.edit().putString(MASKS[MASK_TITLE2], current_track.from2).commit();
-		prefs.edit().putString(MASK_PKID1, current_track.pkid).commit();
+		prefs.edit().putString(MASKS[MASK_FROM], current_track.pkname);
+		prefs.edit().putString(MASKS[MASK_SUBJECT], current_track.subject);
+		prefs.edit().putString(MASKS[MASK_SUBJECTB], current_track.subjectb);
+		prefs.edit().putString(MASKS[MASK_FROM2], current_track.pkname2);
+		prefs.edit().putString(MASKS[MASK_SUBJECT2], current_track.subject2);
+		prefs.edit().putString(MASKS[MASK_SUBJECT2B], current_track.subject2b);
+		prefs.edit().putString(MASKS[MASK_TITLE], current_track.from);
+		prefs.edit().putString(MASKS[MASK_TITLE2], current_track.from2);
+		prefs.edit().putString(MASK_PKID1, current_track.pkid);
 		prefs.edit().putString(MASK_PKID2, current_track.pkid2).commit();
 		
 		/*Bitmap realImage = current_track.icon;
@@ -149,7 +149,7 @@ public class NowPlayingPlugin extends PebbleCanvasPlugin {
 		
 		
 		prefs.edit().putString("image_data",encodedImage).commit();*/
-		
+		return(prefs.getBoolean(SERVICE_WANTED, true));
 
 		
 	}
@@ -176,7 +176,7 @@ public class NowPlayingPlugin extends PebbleCanvasPlugin {
 	 
 	
 	
-	public static void set_notification_details(Context context,Track track) {
+	public static boolean set_notification_details(Context context,Track track) {
 		got_now_playing=true;
 		if (!track.pkname.equals(current_track.pkname)) {
 			current_track.from2=current_track.from;
@@ -218,7 +218,7 @@ public class NowPlayingPlugin extends PebbleCanvasPlugin {
 
 		notify_canvas_updates_available(ID_NEW_EMAIL, context);
 		
-		save_to_prefs(context);
+		return save_to_prefs(context);
 	}
 	
 	@Override

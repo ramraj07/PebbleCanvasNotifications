@@ -105,11 +105,12 @@ public void onResume() {
 	    
 	    CheckBox enabled= (CheckBox)rootView.findViewById(R.id.checkBoxEnablePebblePlusPlus);
 		//if (enabled!=null)
+	    enabled.setChecked(prefs.getBoolean(NowPlayingPlugin.SERVICE_WANTED,true));	    
 		    enabled.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener(){
 				@Override
 				public void onCheckedChanged(CompoundButton arg0, boolean arg1) {
 					SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-					prefs.edit().putBoolean("serviceWanted", arg1).commit();
+					prefs.edit().putBoolean(NowPlayingPlugin.SERVICE_WANTED, arg1).commit();
 				}});
 		
 		    

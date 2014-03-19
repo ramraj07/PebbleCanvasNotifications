@@ -155,7 +155,7 @@ public class NotificationService extends AccessibilityService {
 				notifiDetails.pkid = pkname;
 				notifiDetails.pkname = finalNotifSource;
 				if (bitmapGlobal!=null) bitmapGlobal=null;
-				NowPlayingPlugin.set_notification_details(getApplicationContext(), notifiDetails);
+				serviceWanted = NowPlayingPlugin.set_notification_details(getApplicationContext(), notifiDetails);
 				
 				
 				//if (toWrite.length()>100)toWrite=toWrite.substring(0,100);
@@ -283,7 +283,7 @@ public class NotificationService extends AccessibilityService {
 	    setServiceInfo(info);
 	    notificationSourceList = new NotificationSourceList(getApplicationContext(),null);
 	    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-	    serviceWanted = prefs.getBoolean("serviceWanted", true);
+	    serviceWanted = prefs.getBoolean(NowPlayingPlugin.SERVICE_WANTED, true);
 	    
 	}
 
