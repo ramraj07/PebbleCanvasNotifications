@@ -19,13 +19,16 @@ public class NotificationSourceList {
 			
 	private Set<String> programWhiteList;
 	private Set<String> programFullList;
+	private Set<String> programImportantList;
 	
 	private SharedPreferences prefs;
 	private SharedPreferences.Editor prefEditor;
 	public static final String FULL_LIST_PREF_NAME="programFullList";
 	public static final String WHITE_LIST_PREF_NAME="programWhiteList";
 	public static final String BLACK_LIST_PREF_NAME="programBlackList";
-	
+	public static final String IMPORTANT_LIST_PREF_NAME = "programImportantList";
+	public static final String USE_IMPORANT_LIST_PREF_NAME = "importantListEnabled";
+	public static final String PROGRAM_LIST_SAVED_PREF_NAME = "programListSaved";
 
 	private boolean initialized=false;
 	public NotificationSourceList(Context context,Activity callingActivity) {
@@ -51,7 +54,7 @@ public class NotificationSourceList {
 				notificationManager.notify(0, n); 
 			}
 		}
-		if (!(prefs.contains("programListSaved") && 
+		if (!(prefs.contains(PROGRAM_LIST_SAVED_PREF_NAME) && 
 				prefs.contains(FULL_LIST_PREF_NAME) &&
 				(prefs.contains(WHITE_LIST_PREF_NAME) ||prefs.contains(BLACK_LIST_PREF_NAME))  )) {
 			// first time. add a bunch of programs whitelisted by default to the prefs.
@@ -78,13 +81,14 @@ public class NotificationSourceList {
 					"com.android.phone",
 					"com.google.android.talk"}));
 			prefEditor.putStringSet(FULL_LIST_PREF_NAME,programFullList);
-			prefEditor.putString("programListSaved","oh yes");
+			prefEditor.putString(PROGRAM_LIST_SAVED_PREF_NAME,"oh yes");
 			prefEditor.apply();
 		} else {
 			programFullList = prefs.getStringSet(FULL_LIST_PREF_NAME,new HashSet<String>());
 			programWhiteList = prefs.getStringSet(WHITE_LIST_PREF_NAME, new HashSet<String>());
 			
 		}
+		programImportantList = prefs.getStringSet(IMPORTANT_LIST_PREF_NAME, new HashSet<String>());
 		initialized=true;
 	}
 	
@@ -105,6 +109,13 @@ public class NotificationSourceList {
 			return(false);		
 		}		
 	}
+	public boolean checkIfProgramIsImportant(String programName) {
+		if(prefs.getBoolean(USE_IMPORANT_LIST_PREF_NAME, false)) {
+			if(programImportantList.contains(programName)) return true;
+			else return false;				
+		}
+		else return true;
+	}
 	public Set<String> getFullProgramList() {
 		Set<String> programListCopy = new HashSet<String>(programFullList);
 		return(programListCopy);
@@ -118,6 +129,9 @@ public class NotificationSourceList {
 		//Set<String> programWhiteList = new HashSet<String>(programFullList);
 		//programWhiteList.removeAll(programWhiteList);
 		return(programWhiteList);
+	}
+	public Set<String> getImportantProgramList() {
+		return(programImportantList);
 	}
 	public void addProgramToWhiteList(String programName) {
 		if (!programFullList.contains(programName)) {
@@ -142,8 +156,32 @@ public class NotificationSourceList {
 			prefEditor.putStringSet(WHITE_LIST_PREF_NAME, programWhiteList).apply();
 		}
 	}
+	public void addProgramToImportantList(String programName) {
+		if (!programFullList.contains(programName)) {
+			programFullList.add(programName);
+			prefEditor.putStringSet(FULL_LIST_PREF_NAME, programFullList).apply();
+		}
+		if (!programImportantList.contains(programName)) {
+			programImportantList.add(programName);
+			prefEditor.putStringSet(IMPORTANT_LIST_PREF_NAME, programImportantList).apply();
+		}
+	}
+	public void removeProgramFromImportantList(String programName) {
+		if (!programFullList.contains(programName)) {
+			programFullList.add(programName);
+			programImportantList.remove(programName);
+			prefEditor.putStringSet(IMPORTANT_LIST_PREF_NAME, programImportantList);
+			prefEditor.putStringSet(FULL_LIST_PREF_NAME, programFullList).apply();
+			return;
+		}
+		if (programImportantList.contains(programName)) {
+			programImportantList.remove(programName);
+			prefEditor.putStringSet(IMPORTANT_LIST_PREF_NAME, programImportantList).apply();
+		}
+	}
+
 	public void keepOldBlackList() {
-		if ((prefs.contains("programListSaved") && 
+		if ((prefs.contains(PROGRAM_LIST_SAVED_PREF_NAME) && 
 				prefs.contains(FULL_LIST_PREF_NAME) &&
 				prefs.contains(BLACK_LIST_PREF_NAME) )) {
 				Set<String> programBlackList = prefs.getStringSet(BLACK_LIST_PREF_NAME,new HashSet<String>());

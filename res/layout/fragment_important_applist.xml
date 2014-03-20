@@ -3,49 +3,40 @@
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      android:dividerPadding="5dp"
+      android:dividerPadding="10dp"
       android:orientation="vertical"
       android:padding="10dp"
       android:showDividers="middle" >
-      
-    <LinearLayout
-        android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:dividerPadding="10dp"
-      android:orientation="vertical"
-      android:id="@+id/errorContainers"
-      android:padding="10dp"
-      android:showDividers="middle" />
+    
 
     
        <CheckBox
-           android:id="@+id/checkBoxEnablePebblePlusPlus"
+           android:id="@+id/checkBoxEnableStarredApps"
            android:layout_width="wrap_content"
            android:layout_height="wrap_content"
            android:checked="true"
            android:paddingBottom="10dp"
            android:paddingTop="10dp"
-           android:text="@string/enable_pebbleplusplus"
+           android:text="@string/enable_starred_apps"
            android:textAppearance="?android:attr/textAppearanceMedium" />
 
-       
- 
+     
 		<View
 		    android:layout_height="1dp"
 		    android:layout_width="match_parent"
 		    android:background="#666666" />
 
       <TextView
-          android:id="@+id/textView1"
+          android:id="@+id/textView1a"
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
           android:paddingBottom="10dp"
           android:paddingTop="10dp"            
-          android:text="@string/settings_describe_app_list"
+          android:text="@string/settings_describe_starred_app_list"
           android:textAppearance="?android:attr/textAppearanceSmall" />
    
       <ListView
-          android:id="@+id/listView1"
+          android:id="@+id/listView1a"
           android:layout_width="match_parent"
           android:layout_height="match_parent"
           android:clickable="true"
@@ -55,3 +46,4 @@
 
       </ListView>
 </LinearLayout>
+

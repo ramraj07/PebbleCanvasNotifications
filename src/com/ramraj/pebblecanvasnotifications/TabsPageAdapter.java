@@ -18,7 +18,7 @@ public class TabsPageAdapter extends FragmentPagerAdapter {
 		case 0:
 			return new MainAppsFragment();
 		case 1:
-			return new MainAppsFragment();
+			return new ImportantAppsFragment();
 		}
 		return null;
 	}

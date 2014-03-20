@@ -154,6 +154,7 @@ public class NotificationService extends AccessibilityService {
 				notifiDetails.subject = notifContents;
 				notifiDetails.pkid = pkname;
 				notifiDetails.pkname = finalNotifSource;
+				notifiDetails.importantApp = notificationSourceList.checkIfProgramIsImportant(pkname);
 				if (bitmapGlobal!=null) bitmapGlobal=null;
 				serviceWanted = NowPlayingPlugin.set_notification_details(getApplicationContext(), notifiDetails);
 				

@@ -2,6 +2,8 @@ package com.ramraj.pebblecanvasnotifications;
 
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 import java.util.Arrays;
 
@@ -24,18 +26,15 @@ public class NowPlayingPlugin extends PebbleCanvasPlugin {
 	private static final int ID_NEW_EMAIL = 1;
 	private static final int ID_NOTIFICATION_ICON = 2;
 	private static final int ID_NOTIFICATION_ICON2 = 3;
+	private static final int ID_NOTIFICATION_ICON3 = 4;
 	
-	private static final String[] MASKS = { "%T", "%S","%s","%F", "%Y","%D","%d", "%G"};//,"pkid1","pkid2"};
-	private static final int MASK_TITLE = 0;
-	private static final int MASK_SUBJECT = 1;
-	private static final int MASK_SUBJECTB = 2;	
-	private static final int MASK_FROM = 3;
-	private static final int MASK_TITLE2= 4;
-	private static final int MASK_SUBJECT2 = 5;
-	private static final int MASK_SUBJECT2B = 6;
-	private static final int MASK_FROM2 = 7;
-	private static final String MASK_PKID1 = "pkid1";
-	private static final String MASK_PKID2 = "pkid2";
+	private static final String[] MASKS = { "%T", "%S","%s","%F", "%Y","%D","%d", "%G","%R","%A","%a","%H"};//,"pkid1","pkidarray[2]"};
+	private static final List<String> MASKS_LIST = Arrays.asList(MASKS);
+	private static final int[] MASK_TITLES = {-1, 0, 4, 8};
+	private static final int[] MASK_SUBJECTS = {-1, 1,5,9};
+	private static final int[] MASK_SUBJECTBS ={-1, 2,6,10};	
+	private static final int[] MASK_FROMS = {-1,3,7,11};
+	private static final String[] MASK_PKIDS = {"","pkid1","pkid2","pkid3"};
 	
 	public static final String SERVICE_WANTED = "serviceWanted";
 	
@@ -60,12 +59,15 @@ public class NowPlayingPlugin extends PebbleCanvasPlugin {
 		tplug.format_mask_descriptions = new ArrayList<String>(Arrays.asList(context.getResources().getStringArray(R.array.format_mask_descs)));
 		// populate example content for each field (optional) to be display in the format mask editor
 		ArrayList<String> examples = new ArrayList<String>();
-		examples.add(current_track.from);
-		examples.add(current_track.subject);
-		examples.add(current_track.pkname);
-		examples.add(current_track.from2);
-		examples.add(current_track.subject2);
-		examples.add(current_track.pkname2);
+		examples.add(current_track.fromarray[1]);
+		examples.add(current_track.subjectarray[1]);
+		examples.add(current_track.pknamearray[1]);
+		examples.add(current_track.fromarray[2]);
+		examples.add(current_track.subjectarray[2]);
+		examples.add(current_track.pknamearray[2]);
+		examples.add(current_track.fromarray[3]);
+		examples.add(current_track.subjectarray[3]);
+		examples.add(current_track.pknamearray[3]);
 		tplug.format_mask_examples = examples;
 		tplug.format_masks = new ArrayList<String>(Arrays.asList(MASKS));
 		tplug.default_format_string = "%T - %S";
@@ -80,6 +82,11 @@ public class NowPlayingPlugin extends PebbleCanvasPlugin {
 		iplug2.id = ID_NOTIFICATION_ICON2;
 		iplug2.name = context.getString(R.string.plugin_name_notification_icon2);
 		plugins.add(iplug2);
+	
+		ImagePluginDefinition iplug3 = new ImagePluginDefinition();
+		iplug2.id = ID_NOTIFICATION_ICON3;
+		iplug2.name = context.getString(R.string.plugin_name_notification_icon3);
+		plugins.add(iplug3);
 		
 		
 		return plugins;
@@ -101,44 +108,36 @@ public class NowPlayingPlugin extends PebbleCanvasPlugin {
 	
 	private static void load_from_prefs(Context context) {
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-		current_track.pkname = prefs.getString(MASKS[MASK_FROM], null);
-		current_track.pkname2 = prefs.getString(MASKS[MASK_FROM2], null);
-		current_track.from = prefs.getString(MASKS[MASK_TITLE], null);
-		current_track.subject = prefs.getString(MASKS[MASK_SUBJECT], null);
-		current_track.subjectb = prefs.getString(MASKS[MASK_SUBJECTB], null);
-		current_track.from2 = prefs.getString(MASKS[MASK_TITLE2], null);
-		current_track.subject2 = prefs.getString(MASKS[MASK_SUBJECT2], null);
-		current_track.subject2b = prefs.getString(MASKS[MASK_SUBJECT2B], null);
-		current_track.pkid = prefs.getString(MASK_PKID1, null);
-		current_track.pkid2= prefs.getString(MASK_PKID2, null);
+		Map map = prefs.getAll();
+		for (int i=1;i<4;i++) {
+			current_track.pknamearray[i] = (String)map.get(MASKS[MASK_FROMS[i]]);
+			current_track.fromarray[i] = (String)map.get(MASKS[MASK_TITLES[i]]);
+			current_track.subjectarray[i] = (String)map.get(MASKS[MASK_SUBJECTS[i]]);
+			current_track.subjectbarray[i] = (String)map.get(MASKS[MASK_SUBJECTBS[i]]);
+			current_track.pkidarray[i] = (String)map.get(MASK_PKIDS[i]);
+			try {
+				Drawable icon = context.getPackageManager().getApplicationIcon(current_track.pkidarray[i]);
+				current_track.iconarray[i]= NotificationService.drawableToBitmap(icon);
+			} catch(Exception ex) { current_track.iconarray[i]=null;}
+
+		}
 		
-		try {
-			Drawable icon = context.getPackageManager().getApplicationIcon(current_track.pkid);
-			current_track.icon= NotificationService.drawableToBitmap(icon);
-		} catch(Exception ex) { current_track.icon=null;}
-		try {
-			Drawable icon = context.getPackageManager().getApplicationIcon(current_track.pkid2);
-			current_track.icon2= NotificationService.drawableToBitmap(icon);
-		} catch(Exception ex) { current_track.icon2=null;}
-	    
-	    //`Log.i(LOG_TAG, "loaded email from = " + current_track.from+ " subj = "				 + current_track.subject );
+		
+		
 	    
 	}
 	
 	private static boolean save_to_prefs(Context context) {
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-		prefs.edit().putString(MASKS[MASK_FROM], current_track.pkname);
-		prefs.edit().putString(MASKS[MASK_SUBJECT], current_track.subject);
-		prefs.edit().putString(MASKS[MASK_SUBJECTB], current_track.subjectb);
-		prefs.edit().putString(MASKS[MASK_FROM2], current_track.pkname2);
-		prefs.edit().putString(MASKS[MASK_SUBJECT2], current_track.subject2);
-		prefs.edit().putString(MASKS[MASK_SUBJECT2B], current_track.subject2b);
-		prefs.edit().putString(MASKS[MASK_TITLE], current_track.from);
-		prefs.edit().putString(MASKS[MASK_TITLE2], current_track.from2);
-		prefs.edit().putString(MASK_PKID1, current_track.pkid);
-		prefs.edit().putString(MASK_PKID2, current_track.pkid2).commit();
-		
-		/*Bitmap realImage = current_track.icon;
+for(int i=1;i<4;i++) {
+		prefs.edit().putString(MASKS[MASK_FROMS[i]], current_track.pknamearray[i]);
+		prefs.edit().putString(MASKS[MASK_SUBJECTS[i]], current_track.subjectarray[i]);
+		prefs.edit().putString(MASKS[MASK_SUBJECTBS[i]], current_track.subjectbarray[i]);
+		prefs.edit().putString(MASKS[MASK_TITLES[i]], current_track.fromarray[i]);
+		prefs.edit().putString(MASK_PKIDS[i], current_track.pkidarray[i]);
+}
+prefs.edit().commit();
+				/*Bitmap realImage = current_track.iconarray[1];
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		realImage.compress(Bitmap.CompressFormat.JPEG, 100, baos);   
 		byte[] b = baos.toByteArray(); 
@@ -159,60 +158,92 @@ public class NowPlayingPlugin extends PebbleCanvasPlugin {
 	
 	
 	public static class Track {
-		String from,subject,subjectb,from2,subject2,subject2b,pkname,pkname2,pkid,pkid2;
-		Bitmap icon,icon2;
-		/*public Track() {
-			from=" ";
-			subject = " ";
-			subjectb = " ";
-			from2 = " ";
-			subject2=" ";
-			subject2b=" ";
-			pkname = " ";
-			pkname2= " ";
+		String[] fromarray,subjectarray,subjectbarray,pknamearray,pkidarray;
+		Bitmap[] iconarray;
+		String from,subject,subjectb,pkname,pkid;
+		Bitmap icon;
+		boolean importantApp;
+		public Track() {
+			fromarray = new String[4];
+			subjectarray = new String[4];
+			subjectbarray = new String[4];
+			pknamearray = new String[4];
+			pkidarray = new String[4];
+			iconarray = new Bitmap[4];
 			
-		}*/
+		}
 	}
-	 
+	private static String copyToPosition(Track track,int from,int to) {
+		String sourcepkname = track.pknamearray[to];
+		track.subjectarray[to]= track.subjectarray[from];
+		track.fromarray[to] = track.fromarray[from];
+		track.pknamearray[to] = track.pknamearray[from];
+		track.iconarray[to] = track.iconarray[from];
+		track.pkidarray[to] = track.pkidarray[from];
+	    return sourcepkname;
+	}
 	
 	
 	public static boolean set_notification_details(Context context,Track track) {
 		got_now_playing=true;
-		if (!track.pkname.equals(current_track.pkname)) {
-			current_track.from2=current_track.from;
-			current_track.subject2 = current_track.subject;
-			current_track.pkname2 = current_track.pkname;
-			current_track.icon2=current_track.icon;
+		
+		current_track.subjectarray[0]= track.subject;
+		current_track.fromarray[0] = track.from;
+		current_track.pknamearray[0] = track.pkname;
+		current_track.iconarray[0] = track.icon;
+		current_track.pkidarray[0] = track.pkid;
+		
+		/*
+		if (!track.pknamearray[1].equals(current_track.pknamearray[1])) {
+			current_track.fromarray[2]=current_track.fromarray[1];
+			current_track.subjectarray[2] = current_track.subjectarray[1];
+			current_track.pknamearray[2] = current_track.pknamearray[1];
+			current_track.iconarray[2]=current_track.iconarray[1];
+			current_track.pkidarray[2] = current_track.pkidarray[1];
 			notify_canvas_updates_available(ID_NOTIFICATION_ICON2, context);
 		}
-		current_track.subject= track.subject;
-		current_track.from = track.from;
-		current_track.pkname = track.pkname;
-		current_track.icon = track.icon;
+		current_track.subjectarray[1]= track.subjectarray[1];
+		current_track.fromarray[1] = track.fromarray[1];
+		current_track.pknamearray[1] = track.pknamearray[1];
+		current_track.iconarray[1] = track.iconarray[1];
+		current_track.pkidarray[1] = track.pkidarray[1];*/
+		String temp;
+		if(track.importantApp) {
+			if (track.pkname.equals(current_track.pknamearray[1]))
+				copyToPosition(current_track,0,1);
+			else if (track.pkname.equals(current_track.pknamearray[2])) {
+				copyToPosition(current_track,1,2);
+				copyToPosition(current_track,0,1);
+			} else {
+				copyToPosition(current_track,2,3);
+				copyToPosition(current_track,1,2);
+				copyToPosition(current_track,0,1);
+			}
+			
+		} else {
+			if (track.pkname.equals(current_track.pknamearray[2]))
+				copyToPosition(current_track,0,2);
+			else  {
+				copyToPosition(current_track,2,3);
+				copyToPosition(current_track,0,2);
+			}		
+		}
 		notify_canvas_updates_available(ID_NOTIFICATION_ICON, context);
-        Log.i("HiHiHi",track.from);
 
 		//Log.i("Canvas notifi", "request check for bitmap update");
-        if(current_track.subject== null) current_track.subjectb = null;
-        else {
-		String splits[] = current_track.subject.split("[\r\n]+");
-		if (splits.length>1){
-			current_track.subject = splits[0];
-			current_track.subjectb = splits[1];}
-			else 
-				current_track.subjectb=" ";
-        }
-        if( current_track.subject2==null) current_track.subject2b = null;
-        else {
-		String splits2[] = current_track.subject2.split("[\r\n]+");
-		if (splits2.length>1){
-			current_track.subject2 = splits2[0];
-			current_track.subject2b = splits2[1];}
-			else 
-				current_track.subject2b=" ";
-        }
-		
-        
+		for (int i=1;i<4;i++) {
+	        if(current_track.subjectarray[i]== null) 
+	        	current_track.subjectbarray[i] = null;
+	        else {
+			String splits[] = current_track.subjectarray[i].split("[\r\n]+");
+			if (splits.length>1){
+				current_track.subjectarray[i] = splits[0];
+				current_track.subjectbarray[i] = splits[1];}
+				else 
+					current_track.subjectbarray[i]=" ";
+	        }
+		}
+                
 		
 				
 
@@ -233,47 +264,35 @@ public class NowPlayingPlugin extends PebbleCanvasPlugin {
 				}
 				
 				if (def_id == ID_NEW_EMAIL) {
-					// which field to return current value for?
-					//`Log.i(LOG_TAG, "get_format_mask_value id new email" );
-					String returnString=null;
-					if (format_mask.equals(MASKS[MASK_FROM])) {
-						returnString = current_track.pkname;
-					} else if (format_mask.equals(MASKS[MASK_SUBJECT])) {
-						returnString = current_track.subject;
-					} else if (format_mask.equals(MASKS[MASK_SUBJECTB])) {
-						returnString = current_track.subjectb;
-					} else if (format_mask.equals(MASKS[MASK_FROM2])) {
-						returnString = current_track.pkname2;
-					} else if (format_mask.equals(MASKS[MASK_SUBJECT2])) {
-						returnString = current_track.subject2;
-					} else if (format_mask.equals(MASKS[MASK_SUBJECT2B])) {
-						returnString = current_track.subject2b;
-					} else if (format_mask.equals(MASKS[MASK_TITLE])) {
-						returnString = current_track.from;
-					} else if (format_mask.equals(MASKS[MASK_TITLE2])) {
-						returnString = current_track.from2;
+				int maskIndex = MASKS_LIST.indexOf(format_mask);
+				if(maskIndex!=-1)
+					for(int i=1;i<4;i++) {
+						if(maskIndex==MASK_FROMS[i]) 
+							return current_track.fromarray[i];
+						if(maskIndex==MASK_SUBJECTS[i])
+							return current_track.subjectarray[i];
+						if(maskIndex==MASK_SUBJECTBS[i])
+							return current_track.subjectbarray[i];
+						if(maskIndex==MASK_TITLES[i])
+							return current_track.pknamearray[i];
+							
 					}
-  			///	if (!returnString.isEmpty() && returnString.length()>41 ) return returnString.substring(0,38);
-				//	else 
-						return returnString;
 				}
-				//`Log.i(LOG_TAG, "no matching mask found");
 			
 		return null;
 	}
 
 	@Override
 	protected Bitmap get_bitmap_value(int def_id, Context context, String param) {
-if (def_id== ID_NOTIFICATION_ICON) {
-			
-			//	Log.i("Canvas notifi", "bitmap requested");
-				return current_track.icon;
-			} 
-if (def_id== ID_NOTIFICATION_ICON2) {
-	
-	//	Log.i("Canvas notifi", "bitmap requested");
-		return current_track.icon2;
-	}
+		if (def_id== ID_NOTIFICATION_ICON) {
+			return current_track.iconarray[1];
+		} 
+		if (def_id== ID_NOTIFICATION_ICON2) {
+			return current_track.iconarray[2];
+		}
+		if (def_id== ID_NOTIFICATION_ICON3) {
+			return current_track.iconarray[3];
+		}
 
 		return null;
 	}

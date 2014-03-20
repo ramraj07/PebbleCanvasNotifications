@@ -50,10 +50,7 @@ public class MainAppsFragment extends Fragment implements DialogInterface.OnClic
 	private Activity context;
 	 private ListView lv;
 	 private View rootView;
-	  @Override
-	    public void onAttach(Activity context) {
-	        super.onAttach(context);
-	  }
+	
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -67,11 +64,9 @@ public class MainAppsFragment extends Fragment implements DialogInterface.OnClic
     @Override
     public void setUserVisibleHint(boolean isVisibleToUser) {
         super.setUserVisibleHint(isVisibleToUser);
-        Log.d("MyFragment", "change in visibility.");
         // Make sure that we are currently visible
             // If we are becoming invisible, then...
             if (this.isResumed() && isVisibleToUser) {
-                Log.d("MyFragment", "Not visible anymore.  Stopping audio.");
                 onResume();
                 // TODO stop audio playback
             }
@@ -127,17 +122,8 @@ public void onResume() {
         
         
         final List<String> list = new ArrayList<String>(listWithNames);
-		
-
-		for (String s : fullList) {
-		    Log.i("HiHiHi","full-"+s);
-		}
-		for (String s : fullList) {
-		    Log.i("HiHiHi","white-"+s);
-		}
-
-        Log.i("HiHiHi","abc"+prefs.getString("%T", null));
-        
+	
+	        
         for(int l=0;l<list.size();l++) {
         	try {
                 ai = pm.getApplicationInfo( list.get(l), 0);
@@ -156,13 +142,11 @@ public void onResume() {
         }
         lv.setAdapter(arrayAdapter);
         lv.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
+        ArrayList<View> allchildren = lv.getFocusables(View.FOCUSABLES_ALL);
         for (int l=0;l<list.size();l++) {
         	if(whiteList.contains(list.get(l))) {
         		lv.setItemChecked(l, true);
-	        	Log.i("HiHiHi","prog-yes-"+list.get(l));
-
-        	} else 
-        	Log.i("HiHiHi","prog-no--"+list.get(l));
+        	} 
         }
      // listener for the first one 
         lv.setOnItemClickListener(new OnItemClickListener() {

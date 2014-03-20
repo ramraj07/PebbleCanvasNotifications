@@ -54,13 +54,13 @@ public class MainActivity extends FragmentActivity implements android.app.Action
 	    private TabsPageAdapter mAdapter;
 	    private ActionBar actionBar;
 	    // Tab titles
-	    private String[] tabs = { "Choose app list", "Starred apps"};
 	 
 	    @Override
 	    protected void onCreate(Bundle savedInstanceState) {
 	        super.onCreate(savedInstanceState);
 	        setContentView(R.layout.activity_main);
-	 
+	        String[] tabs = {getString(R.string.tab_main_list),
+	        		getString(R.string.tab_important_list)	  };
 	        // Initialization
 	        viewPager = (ViewPager) findViewById(R.id.pager);
 	        actionBar = getActionBar();
@@ -75,18 +75,39 @@ public class MainActivity extends FragmentActivity implements android.app.Action
 	            actionBar.addTab(actionBar.newTab().setText(tab_name)
 	                    .setTabListener(this));
 	        }
+	        /**
+	         * on swiping the viewpager make respective tab selected
+	         * */
+	        viewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+	         
+	            @Override
+	            public void onPageSelected(int position) {
+	                // on changing the page
+	                // make respected tab selected
+	                actionBar.setSelectedNavigationItem(position);
+	            }
+	         
+	            @Override
+	            public void onPageScrolled(int arg0, float arg1, int arg2) {
+	            }
+	         
+	            @Override
+	            public void onPageScrollStateChanged(int arg0) {
+	            }
+	        });
+	        
 	    }
 	
 	@Override
 	public void onTabSelected(Tab tab, FragmentTransaction ft) {
 		// TODO Auto-generated method stub
-		
+		viewPager.setCurrentItem(tab.getPosition());
+	
 	}
 
 	@Override
 	public void onTabUnselected(Tab tab, FragmentTransaction ft) {
-		// TODO Auto-generated method stub
-		
+	
 	}
 
 	@Override
