@@ -1,6 +1,5 @@
 package com.ramraj.pebblecanvasnotifications;
 
-import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -9,14 +8,9 @@ import java.util.Arrays;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
-import android.net.Uri;
 import android.preference.PreferenceManager;
-import android.util.Base64;
-import android.util.Log;
-
 import com.pennas.pebblecanvas.plugin.PebbleCanvasPlugin;
 import com.ramraj.pebblecanvasnotifications.R;
 
@@ -84,8 +78,8 @@ public class NowPlayingPlugin extends PebbleCanvasPlugin {
 		plugins.add(iplug2);
 	
 		ImagePluginDefinition iplug3 = new ImagePluginDefinition();
-		iplug2.id = ID_NOTIFICATION_ICON3;
-		iplug2.name = context.getString(R.string.plugin_name_notification_icon3);
+		iplug3.id = ID_NOTIFICATION_ICON3;
+		iplug3.name = context.getString(R.string.plugin_name_notification_icon3);
 		plugins.add(iplug3);
 		
 		
@@ -207,10 +201,9 @@ prefs.edit().commit();
 		current_track.pknamearray[1] = track.pknamearray[1];
 		current_track.iconarray[1] = track.iconarray[1];
 		current_track.pkidarray[1] = track.pkidarray[1];*/
-		String temp;
 		if(track.importantApp) {
 			if (track.pkname.equals(current_track.pknamearray[1]))
-				copyToPosition(current_track,0,1);
+				copyToPosition(current_track,0,1);				
 			else if (track.pkname.equals(current_track.pknamearray[2])) {
 				copyToPosition(current_track,1,2);
 				copyToPosition(current_track,0,1);
@@ -221,14 +214,14 @@ prefs.edit().commit();
 			}
 			
 		} else {
-			if (track.pkname.equals(current_track.pknamearray[2]))
+			if (track.pkname.equals(current_track.pknamearray[2])) 
 				copyToPosition(current_track,0,2);
-			else  {
+			 else  {
 				copyToPosition(current_track,2,3);
 				copyToPosition(current_track,0,2);
 			}		
 		}
-		notify_canvas_updates_available(ID_NOTIFICATION_ICON, context);
+		
 
 		//Log.i("Canvas notifi", "request check for bitmap update");
 		for (int i=1;i<4;i++) {
@@ -248,6 +241,10 @@ prefs.edit().commit();
 				
 
 		notify_canvas_updates_available(ID_NEW_EMAIL, context);
+		notify_canvas_updates_available(ID_NOTIFICATION_ICON, context);
+		notify_canvas_updates_available(ID_NOTIFICATION_ICON2, context);
+		notify_canvas_updates_available(ID_NOTIFICATION_ICON3, context);
+
 		
 		return save_to_prefs(context);
 	}
@@ -268,13 +265,13 @@ prefs.edit().commit();
 				if(maskIndex!=-1)
 					for(int i=1;i<4;i++) {
 						if(maskIndex==MASK_FROMS[i]) 
-							return current_track.fromarray[i];
+							return current_track.pknamearray[i];
 						if(maskIndex==MASK_SUBJECTS[i])
 							return current_track.subjectarray[i];
 						if(maskIndex==MASK_SUBJECTBS[i])
 							return current_track.subjectbarray[i];
 						if(maskIndex==MASK_TITLES[i])
-							return current_track.pknamearray[i];
+							return current_track.fromarray[i];
 							
 					}
 				}

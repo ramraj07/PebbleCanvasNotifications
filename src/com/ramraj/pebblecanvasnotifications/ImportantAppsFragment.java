@@ -21,7 +21,6 @@ import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.AdapterView.OnItemClickListener;
 
 public class ImportantAppsFragment extends Fragment {
@@ -99,7 +98,7 @@ public class ImportantAppsFragment extends Fragment {
 	        
 	        lv.setAdapter(arrayAdapter);
 	        lv.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
-	        ArrayList<View> allchildren = lv.getFocusables(View.FOCUSABLES_ALL);
+	       // ArrayList<View> allchildren = lv.getFocusables(View.FOCUSABLES_ALL);
 	        for (int l=0;l<list.size();l++) {
 	        	if(importantList.contains(list.get(l))) {
 	        		lv.setItemChecked(l, true);

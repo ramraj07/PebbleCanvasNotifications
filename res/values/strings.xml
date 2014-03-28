@@ -23,7 +23,7 @@
 			        		application selections made previously. But if you want, the approved
 			        		app list can be migrated (not recommended if you never customized that list yourself).</string>
 	<string name="settings_describe_app_list">Choose which apps you want to forward notifications from:</string>
-	<string name="settings_describe_starred_app_list">Only apps selected below will forward notifications to "Notification 1" in Canvas. Other apps can only send notifications to fields 2 and 3.</string>
+	<string name="settings_describe_starred_app_list">Only apps selected below will forward notifications to the "Notification 1" field in Canvas. Other apps can only send notifications to fields 2 and 3.</string>
 	<string name="enable_pebbleplusplus">Enable Pebble Canvas Notifications Plugin</string>
 	<string name="enable_starred_apps">Use the "important apps" list to prioritize notifications</string>
 	<string name="settings_app_list_will_become_longer">This list will get populated slowly as more apps send notifications.</string>

@@ -13,9 +13,7 @@ import java.util.Set;
 import com.ramraj.pebblecanvasnotifications.NotificationSourceList;
 import com.ramraj.pebblecanvasnotifications.R;
 
-import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Bundle;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.accessibilityservice.AccessibilityServiceInfo;
@@ -29,9 +27,6 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.Color;
-import android.util.Log;
-import android.view.Menu;
-import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityManager;
@@ -51,7 +46,7 @@ public class MainAppsFragment extends Fragment implements DialogInterface.OnClic
 	 private ListView lv;
 	 private View rootView;
 	
-
+private int counter=0;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
@@ -137,12 +132,12 @@ public void onResume() {
         if(lv.getFooterViewsCount()==0) {
         TextView tv=new TextView(context);
         tv.setText(R.string.settings_app_list_will_become_longer);
-        
+        tv.setClickable(false);
         lv.addFooterView(tv);
         }
         lv.setAdapter(arrayAdapter);
         lv.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
-        ArrayList<View> allchildren = lv.getFocusables(View.FOCUSABLES_ALL);
+        //ArrayList<View> allchildren = lv.getFocusables(View.FOCUSABLES_ALL);
         for (int l=0;l<list.size();l++) {
         	if(whiteList.contains(list.get(l))) {
         		lv.setItemChecked(l, true);
@@ -154,6 +149,7 @@ public void onResume() {
 				@Override
 				public void onItemClick(AdapterView<?> arg0, View arg1,
 						int arg2, long arg3) {
+						if (arg3<0) return;
 						// TODO Auto-generated method stub
 						//`Log.i("CANV_K9MAIL","user clicked"+arg2+" - "+arg3);
 						ListView vv = (ListView)arg0;
@@ -174,19 +170,19 @@ public void onResume() {
     new CheckAccessibilityInBG(context).execute("");
     if (!prefs.contains("firstNTimes"))  prefs.edit().putInt("firstNTimes", 1).commit();
     int firstNTimes =prefs.getInt("firstNTimes", 4); 
-    if (firstNTimes<4) {
-    	
-    	
-		View linearLayout =  rootView.findViewById(R.id.errorContainers);
-    //LinearLayout layout = (LinearLayout) findViewById(R.id.info);
-	linearLayout.setBackgroundColor(Color.YELLOW);
-    TextView valueTV = new TextView(context);
-    valueTV.setText(R.string.new_add_icons);
-    valueTV.setTextColor(Color.BLACK);
-    valueTV.setId(5);
-    valueTV.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT,LayoutParams.WRAP_CONTENT));
-    ((LinearLayout) linearLayout).addView(valueTV);
-    prefs.edit().putInt("firstNTimes", firstNTimes+1).apply();
+    if (counter==0 && firstNTimes<4) {
+    	counter = 1;
+	    	
+			View linearLayout =  rootView.findViewById(R.id.errorContainers);
+	    //LinearLayout layout = (LinearLayout) findViewById(R.id.info);
+		linearLayout.setBackgroundColor(Color.YELLOW);
+	    TextView valueTV = new TextView(context);
+	    valueTV.setText(R.string.new_add_icons);
+	    valueTV.setTextColor(Color.BLACK);
+	    valueTV.setId(5);
+	    valueTV.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT,LayoutParams.WRAP_CONTENT));
+	    ((LinearLayout) linearLayout).addView(valueTV);
+	    prefs.edit().putInt("firstNTimes", firstNTimes+1).apply();
     }
         
 }

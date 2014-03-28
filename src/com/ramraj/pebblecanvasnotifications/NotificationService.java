@@ -1,4 +1,6 @@
 package com.ramraj.pebblecanvasnotifications;
+import java.util.Locale;
+
 import com.ramraj.pebblecanvasnotifications.NotificationSourceList;
 import com.ramraj.pebblecanvasnotifications.NowPlayingPlugin;
 import com.ramraj.pebblecanvasnotifications.NowPlayingPlugin.Track;
@@ -7,7 +9,6 @@ import android.accessibilityservice.AccessibilityService;
 import android.accessibilityservice.AccessibilityServiceInfo;
 import android.app.Notification;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
@@ -18,7 +19,6 @@ import android.graphics.Canvas;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.preference.PreferenceManager;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,7 +30,6 @@ import android.widget.ImageView;
 
 public class NotificationService extends AccessibilityService {
 
-	private String toWrite;
 	private NotificationSourceList notificationSourceList; 
 	private Track notifiDetails = new Track();
 	private boolean serviceWanted=true;
@@ -77,9 +76,7 @@ public class NotificationService extends AccessibilityService {
 			String pkname = (String) event.getPackageName();
 			if (notificationSourceList.checkIfProgramWhiteListed(pkname)) {
 								
-				toWrite="===============================\npackage: "+pkname +
-						"\n";
-			    	
+			
 			     
 				
 				// following code "adapted" from 
@@ -102,11 +99,10 @@ public class NotificationService extends AccessibilityService {
 				//`Log.i("CANV_K9MAIL", toWrite);
 				notifTitle=getTextRecursively(localView,"title","",false);
 				if(notification.number>1 && 
-						notifTitle.toLowerCase().indexOf("new messages")!=-1) 
+						notifTitle.toLowerCase(Locale.US).indexOf("new messages")!=-1) 
 					notifContents=getTextRecursively(localView,"text","\n",false);
 				else notifContents=getTextRecursively(localView,"text","\n",false);
 				//bitmapGlobal = getIconRecursively(localView);//bitmapGlobal;
-				toWrite = notifTitle+"\n"+notifContents;
 									
 				if (pkname.equals("com.google.android.googlequicksearchbox")) {
 					finalNotifSource="Search";					
@@ -114,13 +110,11 @@ public class NotificationService extends AccessibilityService {
 					finalNotifSource="Maps";					
 				} else if (pkname.equals("com.android.email")) {
 					finalNotifSource="Email";
-					if (notification.number>1) toWrite = notifContents;
 						
 				} else if (pkname.equals("com.google.android.talk")) {
 					finalNotifSource="Talk";
 				} else if (pkname.equals("com.google.android.gm")) {
 					finalNotifSource="Gmail";
-					if (notification.number>1) toWrite = notifContents;					
 				} else if (pkname.equals("com.whatsapp")) {
 					finalNotifSource="WhatsApp";
 				} else {
@@ -232,7 +226,6 @@ public class NotificationService extends AccessibilityService {
 	String getTextRecursively(ViewGroup parent,String idFilter,String trailingCharacter,boolean truncate) 
 	{    
 		String result="",resultText,truncatedResultText;
-		boolean firstImageNotEncountered = true;
 		//`Log.i("CANV_BITMAP", "notification parsing");
 	    for(int i = 0; i < parent.getChildCount(); i++)
 	    {

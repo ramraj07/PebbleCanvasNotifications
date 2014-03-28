@@ -5,12 +5,10 @@ import java.util.HashSet;
 import java.util.Set;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
@@ -24,13 +22,12 @@ public class NotificationSourceList {
 	private SharedPreferences prefs;
 	private SharedPreferences.Editor prefEditor;
 	public static final String FULL_LIST_PREF_NAME="programFullList";
-	public static final String WHITE_LIST_PREF_NAME="programWhiteList";
+	private static final String WHITE_LIST_PREF_NAME="programWhiteList";
 	public static final String BLACK_LIST_PREF_NAME="programBlackList";
 	public static final String IMPORTANT_LIST_PREF_NAME = "programImportantList";
 	public static final String USE_IMPORANT_LIST_PREF_NAME = "importantListEnabled";
 	public static final String PROGRAM_LIST_SAVED_PREF_NAME = "programListSaved";
 
-	private boolean initialized=false;
 	public NotificationSourceList(Context context,Activity callingActivity) {
 		// new instance is being requested. check first if sharedprefs has any list saved
 		prefs = PreferenceManager.getDefaultSharedPreferences(context);
@@ -75,21 +72,20 @@ public class NotificationSourceList {
 					"com.google.android.apps.plus",
 					"com.google.android.apps.googlevoice"
 					}));  
-			prefEditor.putStringSet(WHITE_LIST_PREF_NAME, programWhiteList);
+			prefEditor.putStringSet(WHITE_LIST_PREF_NAME, programWhiteList).commit();
 			programFullList = new HashSet<String>(Arrays.asList(new String[] { 
 					"com.google.android.gm",
 					"com.android.phone",
 					"com.google.android.talk"}));
-			prefEditor.putStringSet(FULL_LIST_PREF_NAME,programFullList);
-			prefEditor.putString(PROGRAM_LIST_SAVED_PREF_NAME,"oh yes");
-			prefEditor.apply();
+			prefEditor.putStringSet(FULL_LIST_PREF_NAME,programFullList).commit();
+			prefEditor.putString(PROGRAM_LIST_SAVED_PREF_NAME,"oh yes").commit();			
 		} else {
 			programFullList = prefs.getStringSet(FULL_LIST_PREF_NAME,new HashSet<String>());
 			programWhiteList = prefs.getStringSet(WHITE_LIST_PREF_NAME, new HashSet<String>());
 			
 		}
 		programImportantList = prefs.getStringSet(IMPORTANT_LIST_PREF_NAME, new HashSet<String>());
-		initialized=true;
+		
 	}
 	
 	public boolean checkIfProgramWhiteListed(String programName) {
@@ -101,16 +97,18 @@ public class NotificationSourceList {
 				prefEditor.putStringSet(FULL_LIST_PREF_NAME, programFullList).apply();				
 			}				
 			return(true);
-		} else if (programFullList.contains(programName)) 	return(false);
-		else {
-			//first time!
-			programFullList.add(programName);
-			prefEditor.putStringSet(FULL_LIST_PREF_NAME, programFullList).apply();
-			return(false);		
-		}		
+		} else {
+			if (!programFullList.contains(programName)) {
+				//first time!
+				programFullList.add(programName);
+				prefEditor.putStringSet(FULL_LIST_PREF_NAME, programFullList).apply();						
+			}
+			return(false);
+		}
 	}
 	public boolean checkIfProgramIsImportant(String programName) {
 		if(prefs.getBoolean(USE_IMPORANT_LIST_PREF_NAME, false)) {
+			programImportantList = prefs.getStringSet(IMPORTANT_LIST_PREF_NAME, new HashSet<String>());
 			if(programImportantList.contains(programName)) return true;
 			else return false;				
 		}
@@ -128,10 +126,13 @@ public class NotificationSourceList {
 	public Set<String> getWhiteListedProgramList() {
 		//Set<String> programWhiteList = new HashSet<String>(programFullList);
 		//programWhiteList.removeAll(programWhiteList);
-		return(programWhiteList);
+		Set<String> programListCopy = new HashSet<String>(programWhiteList);
+		return(programListCopy);
+		//return(programWhiteList);
 	}
 	public Set<String> getImportantProgramList() {
-		return(programImportantList);
+		Set<String> programListCopy = new HashSet<String>(programImportantList);
+		return(programListCopy);
 	}
 	public void addProgramToWhiteList(String programName) {
 		if (!programFullList.contains(programName)) {
